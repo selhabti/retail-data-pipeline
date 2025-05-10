@@ -1,35 +1,46 @@
-# Retail Data Pipeline
+# 📊 Pipeline de Données Retail
 
-A complete data pipeline for generating, processing, and analyzing synthetic retail data on Google Cloud Platform.
+Un pipeline complet pour générer, traiter et analyser des données retail synthétiques sur **Google Cloud Platform (GCP)**.
 
-## Architecture
+---
 
-- **Data Generation**: Cloud Function that generates customer, product, and order data
-- **Storage**: Google Cloud Storage for raw CSV files
-- **Processing**: Apache Airflow (Cloud Composer) for orchestration
-- **Analytical Storage**: BigQuery with partitioned tables
-- **Infrastructure**: Terraform for Infrastructure as Code
+## 📌 Aperçu
+Ce projet automatise le flux de données retail de la génération à l'analyse en utilisant les services GCP :
+- **Génération de données** → **Stockage** → **Orchestration ETL** → **Analytics** → **Infrastructure as Code (IaC)**
 
-## Project Structure
+---
 
+## 🏗 Architecture
+![Diagramme d'architecture](docs/architecture.png) *(Ajoutez un diagramme si possible)*
+
+| Composant               | Technologie utilisée     | Rôle                                   |
+|-------------------------|--------------------------|----------------------------------------|
+| **Génération de données** | Cloud Functions (Python) | Génère des données clients/commandes   |
+| **Stockage brut**       | Cloud Storage (GCS)      | Stocke les fichiers CSV/JSON bruts     |
+| **Orchestration**       | Airflow (Cloud Composer) | Planifie et gère les workflows ETL     |
+| **Data Warehouse**      | BigQuery                 | Tables partitionnées pour l'analyse    |
+| **Infrastructure**      | Terraform                | Provisionnement automatisé des ressources GCP |
+
+---
+
+## 📁 Structure du Projet
+```bash
 retail-data-pipeline/
-├── airflow/ # Airflow DAGs and plugins
-├── cloud_functions/ # Cloud Functions code
-├── bigquery/ # BigQuery schemas and SQL
-├── terraform/ # Infrastructure as Code
-└── tests/ # Unit and integration tests
-
-
-## Deployment
-
-See the [deployment guide](docs/deployment.md) for detailed instructions.
-
-## Development
-
-- Follow PEP 8 coding conventions
-- Add unit tests for new features
-- Create a branch for each new feature
-- Submit pull requests for review
-
-## License
-MIT
+├── .github/                  # Workflows GitHub Actions
+│   └── workflows/
+│       └── deploy.yml        # Pipeline CI/CD
+├── airflow/                  # DAGs et plugins Airflow
+│   ├── dags/                 # Workflows ETL
+│   └── plugins/operators/    # Opérateurs Airflow personnalisés
+├── cloud_functions/          # Cloud Functions GCP
+│   ├── data_generator/       # Génération de données synthétiques
+│   └── bq_loader/            # Chargement des données dans BigQuery
+├── bigquery/                 # Schémas et SQL BigQuery
+│   ├── schemas/              # Schémas de tables (JSON)
+│   └── sql/views/            # Vues analytiques
+├── terraform/                # Infrastructure as Code
+│   ├── main.tf               # Ressources GCP
+│   └── variables.tf          # Variables d'environnement
+├── tests/                    # Tests unitaires/intégration
+├── .gitignore               # Règles Git ignore
+└── README.md                # Ce fichier
