@@ -11,6 +11,7 @@ Ce projet automatise le flux de données retail de la génération à l'analyse 
 ---
 
 ## 🏗 Architecture
+## Architecture
 
 ```mermaid
 graph TD
