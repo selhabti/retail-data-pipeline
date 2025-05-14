@@ -15,10 +15,10 @@ Ce projet automatise le flux de données retail de la génération à l'analyse 
 
 ```mermaid
 graph TD
-    A[📦 Cloud Functions] -->|Données synthétiques| B[🗄 Cloud Storage]
-    B --> C[🔄 Airflow DAG]
-    C -->|ETL| D[📊 BigQuery]
-    E[🛠 Terraform] --> A
+    A[Cloud Functions] --> B[Cloud Storage]
+    B --> C[Airflow DAG]
+    C --> D[BigQuery]
+    E[Terraform] --> A
     E --> B
     E --> C
     E --> D
