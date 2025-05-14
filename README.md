@@ -1,17 +1,11 @@
 # 📊 Pipeline de Données Retail
-
 Un pipeline complet pour générer, traiter et analyser des données retail synthétiques sur **Google Cloud Platform (GCP)**.
-
 ---
-
 ## 📌 Aperçu
 Ce projet automatise le flux de données retail de la génération à l'analyse en utilisant les services GCP :
 - **Génération de données** → **Stockage** → **Orchestration ETL** → **Analytics** → **Infrastructure as Code (IaC)**
-
 ---
-
 ## 🏗 Architecture
-## Architecture
 
 ```mermaid
 graph TD
@@ -23,6 +17,8 @@ graph TD
     E --> C
     E --> D
 
+
+---
 | Composant               | Technologie utilisée     | Rôle                                   |
 |-------------------------|--------------------------|----------------------------------------|
 | **Génération de données** | Cloud Functions (Python) | Génère des données clients/commandes   |
