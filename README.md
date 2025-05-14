@@ -23,6 +23,12 @@ Ce projet automatise le flux de données retail de la génération à l'analyse 
 
 ---
 
+graph TD
+    A[📦 Cloud Functions] -->|Données synthétiques| B[🗄 Cloud Storage]
+    B --> C[🔄 Airflow DAG]
+    C -->|ETL| D[📊 BigQuery]
+    E[🛠 Terraform] --> A & B & C & D
+
 ## 📁 Structure du Projet
 ```bash
 retail-data-pipeline/
