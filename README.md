@@ -11,7 +11,16 @@ Ce projet automatise le flux de données retail de la génération à l'analyse 
 ---
 
 ## 🏗 Architecture
-![Diagramme d'architecture](docs/architecture.png) *(Ajoutez un diagramme si possible)*
+
+```mermaid
+graph TD
+    A[📦 Cloud Functions] -->|Données synthétiques| B[🗄 Cloud Storage]
+    B --> C[🔄 Airflow DAG]
+    C -->|ETL| D[📊 BigQuery]
+    E[🛠 Terraform] --> A
+    E --> B
+    E --> C
+    E --> D
 
 | Composant               | Technologie utilisée     | Rôle                                   |
 |-------------------------|--------------------------|----------------------------------------|
