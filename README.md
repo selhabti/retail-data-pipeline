@@ -23,18 +23,7 @@ Ce projet automatise le flux de données retail de la génération à l'analyse 
 
 ---
 
-```markdown
-## Architecture
 
-```mermaid
-graph TD
-    A[📦 Cloud Functions] -->|Données synthétiques| B[🗄 Cloud Storage]
-    B --> C[🔄 Airflow DAG]
-    C -->|ETL| D[📊 BigQuery]
-    E[🛠 Terraform] --> A
-    E[🛠 Terraform] --> B
-    E[🛠 Terraform] --> C
-    E[🛠 Terraform] --> D
 
 ## 📁 Structure du Projet
 ```bash
