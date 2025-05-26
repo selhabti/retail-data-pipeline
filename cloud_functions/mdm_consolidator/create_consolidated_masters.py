@@ -36,7 +36,7 @@ def upload_csv_to_gcs(df, bucket_name, blob_path):
     blob.upload_from_string(df.to_csv(index=False), 'text/csv')
     print(f"Uploaded to gs://{bucket_name}/{blob_path}")
 
-def create_consolidated_master(bucket_name, file_pattern, primary_key, master_path):
+def create_consolidated_master(bucket_name, prefix, file_pattern, primary_key, master_path):
     """Crée un master consolidé à partir de tous les fichiers historiques."""
     # Liste tous les fichiers correspondant au pattern
     all_files = list_files_in_bucket(bucket_name, file_pattern.split('/')[0])
@@ -94,6 +94,7 @@ def main():
     print("=== Création du master clients ===")
     customers_master = create_consolidated_master(
         BUCKET,
+	"customers/",
         CUSTOMERS_PATTERN,
         CUSTOMERS_KEY,
         CUSTOMERS_MASTER
@@ -103,6 +104,7 @@ def main():
     print("=== Création du master produits ===")
     products_master = create_consolidated_master(
         BUCKET,
+	"products/",
         PRODUCTS_PATTERN,
         PRODUCTS_KEY,
         PRODUCTS_MASTER
