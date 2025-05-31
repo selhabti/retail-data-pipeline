@@ -4,7 +4,7 @@ import json
 from faker import Faker
 from google.cloud import storage
 from io import StringIO
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import os
 
 fake = Faker()
@@ -30,7 +30,7 @@ def generate_supplier_id(i):
 def generate_suppliers(n=500, duplicate_rate=0.05, date=None):
     """Generate a DataFrame of suppliers, with duplicates on Tuesdays."""
     if date is None:
-        date = (datetime.utcnow() - timedelta(days=1)).date()  # Use yesterday's date by default
+        date = (datetime.now(timezone.utc) - timedelta(days=1)).date()    
     supplier_ids = [generate_supplier_id(i) for i in range(1, n+1)]
     data = {
         'supplier_id': supplier_ids,
