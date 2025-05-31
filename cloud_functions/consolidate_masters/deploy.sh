@@ -3,21 +3,23 @@
 
 set -e
 
-FUNCTION_NAME="consolidate_masters"
+FUNCTION_NAME="consolidate-masters"
 PROJECT_ID="sound-machine-457008-i6"
 REGION="us-central1"
-SERVICE_ACCOUNT="consolidate-masters-sa@${PROJECT_ID}.iam.gserviceaccount.com"
+BUCKET="retail-data-landing-zone"
 
-echo "Deploying ${FUNCTION_NAME}..."
+echo "Deploying ${FUNCTION_NAME} with GCS trigger..."
 
 gcloud functions deploy ${FUNCTION_NAME} \
-  --runtime python310 \
-  --trigger-resource=retail-data-landing-zone \
-  --trigger-event=google.storage.object.finalize \
+  --gen2 \
+  --runtime=python312 \
+  --trigger-bucket=${BUCKET} \
   --entry-point=main \
   --region=${REGION} \
-  --service-account=${SERVICE_ACCOUNT} \
   --source=. \
-  --project=${PROJECT_ID}
+  --project=${PROJECT_ID} \
+  --memory=512MB \
+  --timeout=300s
 
 echo "✅ ${FUNCTION_NAME} deployed successfully!"
+echo "🎯 Function will trigger on new files in gs://${BUCKET}"
