@@ -1,22 +1,8 @@
 #!/bin/bash
 set -e
 
-# Charger les variables d'environnement centralisées
-ENV_FILE="../../.env"
-if [ -f "$ENV_FILE" ]; then
-    source "$ENV_FILE"
-    echo "✅ Fichier .env chargé : $ENV_FILE"
-else
-    echo "❌ ERREUR: Fichier .env introuvable : $ENV_FILE"
-    exit 1
-fi
-
-# Définir les variables spécifiques
-FUNCTION_NAME="${CONSOLIDATE_MASTERS_FUNCTION}"
-BUCKET="${CONSOLIDATE_MASTERS_BUCKET}"
-
-# Vérification des variables
-declare -a required_vars=("FUNCTION_NAME" "PROJECT_ID" "REGION" "BUCKET")
+# Check required environment variables
+required_vars=("CONSOLIDATE_MASTERS_FUNCTION" "CONSOLIDATE_MASTERS_BUCKET" "PROJECT_ID" "REGION")
 missing_vars=()
 
 for var in "${required_vars[@]}"; do
@@ -26,14 +12,17 @@ for var in "${required_vars[@]}"; do
 done
 
 if [ ${#missing_vars[@]} -ne 0 ]; then
-    echo "❌ ERREUR: Variables manquantes : ${missing_vars[*]}"
-    echo "   Vérifiez le fichier .env ou les définitions de variables"
+    echo "❌ ERROR: Missing environment variables: ${missing_vars[*]}"
+    echo "   Please set these variables before running the script."
     exit 1
 fi
 
-echo "Déploiement de ${FUNCTION_NAME}..."
-echo "Projet: ${PROJECT_ID}"
-echo "Région: ${REGION}"
+FUNCTION_NAME="${CONSOLIDATE_MASTERS_FUNCTION}"
+BUCKET="${CONSOLIDATE_MASTERS_BUCKET}"
+
+echo "Deploying ${FUNCTION_NAME}..."
+echo "Project: ${PROJECT_ID}"
+echo "Region: ${REGION}"
 echo "Bucket: ${BUCKET}"
 
 gcloud functions deploy "${FUNCTION_NAME}" \
@@ -49,4 +38,4 @@ gcloud functions deploy "${FUNCTION_NAME}" \
   --trigger-resource="${BUCKET}" \
   --set-env-vars RETAIL_DATA_LANDING_ZONE_BUCKET="${BUCKET}"
 
-echo "✅ ${FUNCTION_NAME} déployée avec succès!"
+echo "✅ ${FUNCTION_NAME} deployed successfully!"
