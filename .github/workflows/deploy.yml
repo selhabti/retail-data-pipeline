@@ -33,7 +33,7 @@ jobs:
       CONSOLIDATE_MASTERS_FUNCTION: ${{ secrets.CONSOLIDATE_MASTERS_FUNCTION }}
       CONSOLIDATE_MASTERS_BUCKET: ${{ secrets.CONSOLIDATE_MASTERS_BUCKET }}
       PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-      REGION: ${{ secrets.REGION }}
+      REGION: ${{ secrets.GCP_REGION }}
     steps:
       - uses: actions/checkout@v3
       - name: Set up Google Cloud SDK
