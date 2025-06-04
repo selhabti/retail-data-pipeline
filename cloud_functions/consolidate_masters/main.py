@@ -8,6 +8,7 @@ import hashlib
 import os
 import time
 from io import StringIO
+import sys
 
 logging.basicConfig(
     level=logging.INFO,
