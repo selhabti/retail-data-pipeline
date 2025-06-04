@@ -1,6 +1,16 @@
 #!/bin/bash
 set -e
 
+# Charger les variables d environnement depuis le fichier .env a la racine
+if [ -f ../../.env ]; then
+  set -a
+  source ../../.env
+  set +a
+else
+  echo "⚠️  Warning: .env file not found at ../../.env"
+fi
+
+
 # Check required environment variables
 required_vars=("CONSOLIDATE_MASTERS_FUNCTION" "CONSOLIDATE_MASTERS_BUCKET" "PROJECT_ID" "REGION")
 missing_vars=()
