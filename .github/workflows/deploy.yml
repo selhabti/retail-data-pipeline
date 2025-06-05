@@ -1,5 +1,4 @@
 name: Deploy Cloud Functions
-
 on:
   push:
     branches: [ main ]
@@ -36,31 +35,39 @@ jobs:
       REGION: ${{ secrets.GCP_REGION }}
     steps:
       - uses: actions/checkout@v3
+      
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
-
+      
+      - name: Verify authentication
+        run: |
+          echo "Checking authentication..."
+          gcloud auth list
+          gcloud config list project
+          echo "Current project: $(gcloud config get-value project)"
+      
       - name: Deploy consolidate_masters function
         run: |
           cd cloud_functions/consolidate_masters
           chmod +x deploy.sh
           ./deploy.sh
-
+      
       - name: Deploy generate_customers_daily function
         run: |
           cd cloud_functions/generate_customers_daily
           chmod +x deploy.sh
           ./deploy.sh
-
+      
       - name: Deploy generate_products_daily function
         run: |
           cd cloud_functions/generate_products_daily
           chmod +x deploy.sh
           ./deploy.sh
-
+      
       - name: Deploy generate_suppliers_daily function
         run: |
           cd cloud_functions/generate_suppliers_daily
