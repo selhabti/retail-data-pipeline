@@ -117,6 +117,31 @@ def move_to_history(bucket, current_path, entity):
         append_step_log_buffer(entity, current_path, "move_to_history", "failure", str(e), duration_sec=duration)
         return None
 
+def clean_history(bucket, entity, max_versions=5):
+    """
+    Nettoie les fichiers historiques, en gardant seulement les 'max_versions' plus récents.
+    """
+    history_prefix = f"master/{entity}/history/"
+    blobs = list(bucket.list_blobs(prefix=history_prefix))
+    
+    # Filtrer les blobs qui sont des fichiers (et non des dossiers)
+    files = [blob for blob in blobs if not blob.name.endswith('/')]
+    
+    # Trier les fichiers par date de création (du plus ancien au plus récent)
+    files.sort(key=lambda blob: blob.time_created)
+
+    # Supprimer les fichiers les plus anciens si le nombre de versions dépasse max_versions
+    num_files_to_delete = len(files) - max_versions
+    if num_files_to_delete > 0:
+        logger.info(f"Deleting {num_files_to_delete} old history files for entity '{entity}'.")
+        for i in range(num_files_to_delete):
+            file_to_delete = files[i]
+            logger.info(f"Deleting old history file: {file_to_delete.name}")
+            bucket.delete_blob(file_to_delete.name)
+        logger.info(f"History cleaned for entity '{entity}'.")
+    else:
+        logger.info(f"No history files to clean for entity '{entity}'.")
+
 def log_audit(bucket, entity, event_data):
     try:
         audit_path = f"master/{entity}/audit/audit_log.jsonl"
@@ -167,6 +192,7 @@ def process_mastering(entity, new_file, id_col):
         return {"action": "error", "reason": "download_or_read_failed"}
 
     if current_hash is None:
+        # Pas de master existant, on crée un nouveau master directement
         append_step_log_buffer(entity, new_file, "create_master", "success", "No existing master found, creating new master")
         try:
             upload_csv(new_df, bucket, master_path)
@@ -177,9 +203,14 @@ def process_mastering(entity, new_file, id_col):
             flush_step_logs(bucket, entity)
             return {"action": "error", "reason": "upload_failed"}
 
+    # Ici, on a un master existant et un nouveau fichier différent
+    # On archive l'ancien master dans l'historique
     history_path = move_to_history(bucket, master_path, entity)
     if history_path is None:
         append_step_log_buffer(entity, master_path, "move_to_history", "warning", "History archiving failed or skipped")
+
+    # Nettoyer l'historique après avoir archivé
+    clean_history(bucket, entity, max_versions=5)
 
     timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
     new_master_path = f"{master_dir}/{entity}_master_{timestamp}.csv"
