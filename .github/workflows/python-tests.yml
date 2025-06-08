@@ -9,9 +9,10 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Important pour git diff
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -23,5 +24,12 @@ jobs:
           pip install pytest
           pip install -r requirements.txt
 
+      - name: Determine changed files
+        id: changed-files
+        run: |
+          CHANGED=$(git diff --name-only HEAD^ HEAD)
+          echo "::set-output name=any_changes::$(echo "$CHANGED" | grep -E '.*\.py|requirements\.txt|tests/')"
+
       - name: Run tests
+        if: steps.changed-files.outputs.any_changes == 'true'
         run: pytest tests/
