@@ -1,5 +1,4 @@
 name: Deploy Cloud Functions
-
 on:
   push:
     branches: [ main ]
@@ -24,7 +23,7 @@ jobs:
         run: |
           export PYTHONPATH=$PYTHONPATH:$(pwd)
           pytest
-
+          
   deploy_functions:
     needs: test
     if: github.ref == 'refs/heads/main'
@@ -37,18 +36,40 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Important pour git diff
-
+          fetch-depth: 0
+          
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v40
+        with:
+          files: |
+            cloud_functions/consolidate_masters/**
+            cloud_functions/generate_customers_daily/**
+            cloud_functions/generate_products_daily/**
+            cloud_functions/generate_suppliers_daily/**
+          files_yaml: |
+            consolidate_masters:
+              - cloud_functions/consolidate_masters/**
+            generate_customers_daily:
+              - cloud_functions/generate_customers_daily/**
+            generate_products_daily:
+              - cloud_functions/generate_products_daily/**
+            generate_suppliers_daily:
+              - cloud_functions/generate_suppliers_daily/**
+              
       - name: Authenticate to Google Cloud
+        if: steps.changed-files.outputs.any_changed == 'true'
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
           project_id: ${{ secrets.GCP_PROJECT_ID }}
       
       - name: Set up Google Cloud SDK
+        if: steps.changed-files.outputs.any_changed == 'true'
         uses: google-github-actions/setup-gcloud@v2
       
       - name: Verify authentication
+        if: steps.changed-files.outputs.any_changed == 'true'
         run: |
           echo "Checking authentication..."
           gcloud auth list
@@ -56,30 +77,33 @@ jobs:
           echo "Current project: $(gcloud config get-value project)"
       
       - name: Deploy consolidate_masters function
-        id: consolidate_masters
+        if: steps.changed-files.outputs.consolidate_masters_any_changed == 'true'
         run: |
+          echo "Deploying consolidate_masters function..."
           cd cloud_functions/consolidate_masters
           chmod +x deploy.sh
           ./deploy.sh
-          echo "::set-output name=changed::$([ -z "$(git diff --name-only HEAD^ HEAD -- cloud_functions/consolidate_masters/)" ])"
         
       - name: Deploy generate_customers_daily function
-        if: steps.consolidate_masters.outputs.changed == 'false'
+        if: steps.changed-files.outputs.generate_customers_daily_any_changed == 'true'
         run: |
+          echo "Deploying generate_customers_daily function..."
           cd cloud_functions/generate_customers_daily
           chmod +x deploy.sh
           ./deploy.sh
       
       - name: Deploy generate_products_daily function
-        if: steps.consolidate_masters.outputs.changed == 'false'
+        if: steps.changed-files.outputs.generate_products_daily_any_changed == 'true'
         run: |
+          echo "Deploying generate_products_daily function..."
           cd cloud_functions/generate_products_daily
           chmod +x deploy.sh
           ./deploy.sh
       
       - name: Deploy generate_suppliers_daily function
-        if: steps.consolidate_masters.outputs.changed == 'false'
+        if: steps.changed-files.outputs.generate_suppliers_daily_any_changed == 'true'
         run: |
+          echo "Deploying generate_suppliers_daily function..."
           cd cloud_functions/generate_suppliers_daily
           chmod +x deploy.sh
           ./deploy.sh
