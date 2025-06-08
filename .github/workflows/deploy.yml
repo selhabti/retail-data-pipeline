@@ -1,10 +1,11 @@
 name: Deploy Cloud Functions
+
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-
+    
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -35,7 +36,9 @@ jobs:
       REGION: ${{ secrets.GCP_REGION }}
     steps:
       - uses: actions/checkout@v3
-      
+        with:
+          fetch-depth: 0  # Important pour git diff
+
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -53,24 +56,29 @@ jobs:
           echo "Current project: $(gcloud config get-value project)"
       
       - name: Deploy consolidate_masters function
+        id: consolidate_masters
         run: |
           cd cloud_functions/consolidate_masters
           chmod +x deploy.sh
           ./deploy.sh
-      
+          echo "::set-output name=changed::$([ -z "$(git diff --name-only HEAD^ HEAD -- cloud_functions/consolidate_masters/)" ])"
+        
       - name: Deploy generate_customers_daily function
+        if: steps.consolidate_masters.outputs.changed == 'false'
         run: |
           cd cloud_functions/generate_customers_daily
           chmod +x deploy.sh
           ./deploy.sh
       
       - name: Deploy generate_products_daily function
+        if: steps.consolidate_masters.outputs.changed == 'false'
         run: |
           cd cloud_functions/generate_products_daily
           chmod +x deploy.sh
           ./deploy.sh
       
       - name: Deploy generate_suppliers_daily function
+        if: steps.consolidate_masters.outputs.changed == 'false'
         run: |
           cd cloud_functions/generate_suppliers_daily
           chmod +x deploy.sh
