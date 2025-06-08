@@ -1,39 +1,34 @@
 name: Python tests
-
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Important pour git diff
-
+          fetch-depth: 0
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v40
+        with:
+          files: |
+            **/*.py
+            requirements.txt
+            tests/**
       - name: Set up Python
+        if: steps.changed-files.outputs.any_changed == 'true'
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-
       - name: Install dependencies
+        if: steps.changed-files.outputs.any_changed == 'true'
         run: |
           pip install pytest
           pip install -r requirements.txt
-
-      - name: Determine changed files
-        id: changed-files
-        run: |
-          CHANGED=$(git diff --name-only HEAD^ HEAD)
-          ANY_CHANGES=$(echo "$CHANGED" | grep -E '.*\.py|requirements\.txt|tests/')
-          if [[ -n "$ANY_CHANGES" ]]; then
-            echo "any_changes=true" >> $GITHUB_OUTPUT
-          else
-            echo "any_changes=false" >> $GITHUB_OUTPUT
-          fi
       - name: Run tests
-        if: ${{ steps.changed-files.outputs.any_changes == 'true' }}
+        if: steps.changed-files.outputs.any_changed == 'true'
         run: pytest tests/
