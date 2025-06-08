@@ -157,6 +157,10 @@ def load_csv_to_bigquery(dataset_id, table_id, gcs_uri, write_disposition="WRITE
     client = bigquery.Client()
     table_ref = client.dataset(dataset_id).table(table_id)
 
+    append_step_log_buffer("", gcs_uri, "bigquery_table_creation", "info", f"Table {dataset_id}.{table_id} will be created if not exists")
+    # Flush logs to record table creation attempt
+    # Note: bucket is not passed here, so flush will be done in caller
+
     job_config = bigquery.LoadJobConfig(
         source_format=bigquery.SourceFormat.CSV,
         skip_leading_rows=1,
@@ -164,16 +168,19 @@ def load_csv_to_bigquery(dataset_id, table_id, gcs_uri, write_disposition="WRITE
         write_disposition=write_disposition,
     )
 
-    load_job = client.load_table_from_uri(
-        gcs_uri,
-        table_ref,
-        job_config=job_config
-    )
-
-    load_job.result()  # Wait for job to complete
-
-    logger.info(f"Loaded data into BigQuery table {dataset_id}.{table_id} from {gcs_uri}")
-    append_step_log_buffer("", gcs_uri, "bigquery_load", "success", f"Loaded into {dataset_id}.{table_id}")
+    try:
+        load_job = client.load_table_from_uri(
+            gcs_uri,
+            table_ref,
+            job_config=job_config
+        )
+        load_job.result()  # Wait for job to complete
+        logger.info(f"Loaded data into BigQuery table {dataset_id}.{table_id} from {gcs_uri}")
+        append_step_log_buffer("", gcs_uri, "bigquery_load", "success", f"Loaded into {dataset_id}.{table_id}")
+    except Exception as e:
+        logger.error(f"Failed to load data into BigQuery table {dataset_id}.{table_id}: {str(e)}")
+        append_step_log_buffer("", gcs_uri, "bigquery_load", "failure", str(e))
+        raise
 
 def process_mastering(entity, new_file, id_col):
     client = storage.Client()
