@@ -23,7 +23,7 @@ if not BUCKET:
     logger.error("Environment variable RETAIL_DATA_LANDING_ZONE_BUCKET is not set.")
     raise EnvironmentError("RETAIL_DATA_LANDING_ZONE_BUCKET environment variable is required.")
 
-# Buffer en mémoire pour stocker les logs d’étapes
+# Buffer en mémoire pour stocker les logs d'étapes
 step_logs_buffer = []
 
 def append_step_log_buffer(entity, source_file, step, status, message="", rows=None, duration_sec=None):
@@ -156,10 +156,9 @@ def log_audit(bucket, entity, event_data):
 def load_csv_to_bigquery(dataset_id, table_id, gcs_uri, write_disposition="WRITE_TRUNCATE"):
     client = bigquery.Client()
     table_ref = client.dataset(dataset_id).table(table_id)
+    start_time = time.time()
 
     append_step_log_buffer("", gcs_uri, "bigquery_table_creation", "info", f"Table {dataset_id}.{table_id} will be created if not exists")
-    # Flush logs to record table creation attempt
-    # Note: bucket is not passed here, so flush will be done in caller
 
     job_config = bigquery.LoadJobConfig(
         source_format=bigquery.SourceFormat.CSV,
@@ -174,13 +173,34 @@ def load_csv_to_bigquery(dataset_id, table_id, gcs_uri, write_disposition="WRITE
             table_ref,
             job_config=job_config
         )
-        load_job.result()  # Wait for job to complete
+        load_job.result()
+        
+        destination_table = client.get_table(table_ref)
+        duration = time.time() - start_time
+        
         logger.info(f"Loaded data into BigQuery table {dataset_id}.{table_id} from {gcs_uri}")
-        append_step_log_buffer("", gcs_uri, "bigquery_load", "success", f"Loaded into {dataset_id}.{table_id}")
+        append_step_log_buffer(
+            "", 
+            gcs_uri, 
+            "bigquery_load", 
+            "success", 
+            f"Loaded into {dataset_id}.{table_id} - {load_job.output_rows} rows",
+            rows=load_job.output_rows,
+            duration_sec=duration
+        )
+        return True
     except Exception as e:
+        duration = time.time() - start_time
         logger.error(f"Failed to load data into BigQuery table {dataset_id}.{table_id}: {str(e)}")
-        append_step_log_buffer("", gcs_uri, "bigquery_load", "failure", str(e))
-        raise
+        append_step_log_buffer(
+            "", 
+            gcs_uri, 
+            "bigquery_load", 
+            "failure", 
+            str(e),
+            duration_sec=duration
+        )
+        return False
 
 def process_mastering(entity, new_file, id_col):
     client = storage.Client()
@@ -257,10 +277,19 @@ def process_mastering(entity, new_file, id_col):
         "products": "products_master",
         "suppliers": "suppliers_master"
     }
+    
+    bq_status = "not_executed"
     try:
-        load_csv_to_bigquery("retail", bq_table_map[entity], gcs_uri)
+        bq_success = load_csv_to_bigquery("retail", bq_table_map[entity], gcs_uri)
+        if bq_success:
+            append_step_log_buffer(entity, new_master_path, "bigquery_overall", "success", "BigQuery load completed successfully")
+            bq_status = "success"
+        else:
+            append_step_log_buffer(entity, new_master_path, "bigquery_overall", "warning", "BigQuery load completed with issues")
+            bq_status = "partial_failure"
     except Exception as e:
-        append_step_log_buffer(entity, new_master_path, "bigquery_load", "failure", str(e))
+        append_step_log_buffer(entity, new_master_path, "bigquery_overall", "failure", str(e))
+        bq_status = "failed"
         flush_step_logs(bucket, entity)
         return {"action": "error", "reason": "bigquery_load_failed"}
 
@@ -275,7 +304,8 @@ def process_mastering(entity, new_file, id_col):
         "rows": len(new_df),
         "current_master": master_path,
         "timestamped_version": new_master_path,
-        "history": history_path
+        "history": history_path,
+        "bigquery_status": bq_status
     }
 
 def main(event, context):
