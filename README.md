@@ -7,6 +7,7 @@ Ce projet automatise le flux de données retail de la génération à l'analyse 
 ---
 ## 🏗 Architecture
 
+```mermaid
 graph TD
     A[🔧 Cloud Functions] --> |Deploy| B[☁️ Cloud Storage]
     B --> |Trigger| C[⚙️ Airflow DAG]
@@ -23,6 +24,7 @@ graph TD
     class E terraform
     class A,C dataflow  
     class B,D storage
+```
 ---
 | Composant               | Technologie utilisée     | Rôle                                   |
 |-------------------------|--------------------------|----------------------------------------|
