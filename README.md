@@ -22,7 +22,7 @@ graph TD
     classDef storage fill:#FF6347,stroke:#DC143C,color:#fff
     
     class E terraform
-    class A,C dataflow  
+    class A,C dataflow
     class B,D storage
 ```
 ---
