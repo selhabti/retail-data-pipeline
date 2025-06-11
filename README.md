@@ -32,22 +32,106 @@ graph TD
 
 ## 📁 Structure du Projet
 ```bash
-retail-data-pipeline/
-├── .github/                  # Workflows GitHub Actions
-│   └── workflows/
-│       └── deploy.yml        # Pipeline CI/CD
-├── airflow/                  # DAGs et plugins Airflow
-│   ├── dags/                 # Workflows ETL
-│   └── plugins/operators/    # Opérateurs Airflow personnalisés
-├── cloud_functions/          # Cloud Functions GCP
-│   ├── data_generator/       # Génération de données synthétiques
-│   └── bq_loader/            # Chargement des données dans BigQuery
-├── bigquery/                 # Schémas et SQL BigQuery
-│   ├── schemas/              # Schémas de tables (JSON)
-│   └── sql/views/            # Vues analytiques
-├── terraform/                # Infrastructure as Code
-│   ├── main.tf               # Ressources GCP
-│   └── variables.tf          # Variables d'environnement
-├── tests/                    # Tests unitaires/intégration
-├── .gitignore               # Règles Git ignore
-└── README.md                # Ce fichier
+.
+├── airflow
+│   └── dags
+│       └── retail_data_dag.py
+├── cloud_functions
+│   ├── consolidate_masters
+│   │   ├── deploy.sh
+│   │   ├── main.py
+│   │   └── requirements.txt
+│   ├── generate_customers_daily
+│   │   ├── deploy.sh
+│   │   ├── main.py
+│   │   └── requirements.txt
+│   ├── generate_products_daily
+│   │   ├── deploy.sh
+│   │   ├── main.py
+│   │   └── requirements.txt
+│   ├── generate_suppliers_daily
+│   │   ├── deploy.sh
+│   │   ├── main.py
+│   │   └── requirements.txt
+│   └── shared
+│       ├── config.py
+│       ├── requirements.txt
+│       └── utils.py
+├── Makefile
+├── README.md
+├── requirements.txt
+├── scripts
+│   ├── changelog.sh
+│   └── version.sh
+├── terraform
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+└── tests
+    ├── conftest.py
+    ├── test_data_generator.py
+    ├── test_generate_products_daily.py
+    └── test_generate_suppliers_daily.py
+
+<!-- TREE_START -->
+## 📁 Structure du projet
+
+```
+[2025-06-11 14:36:27] [0;34m[INFO][0m Génération de l'arborescence...
+.
+|-- airflow
+|   `-- dags
+|       `-- retail_data_dag.py
+|-- cloud_functions
+|   |-- consolidate_masters
+|   |   |-- deploy.sh
+|   |   |-- .gcloudignore
+|   |   |-- main.py
+|   |   `-- requirements.txt
+|   |-- generate_customers_daily
+|   |   |-- deploy.sh
+|   |   |-- .gcloudignore
+|   |   |-- main.py
+|   |   `-- requirements.txt
+|   |-- generate_products_daily
+|   |   |-- deploy.sh
+|   |   |-- .gcloudignore
+|   |   |-- main.py
+|   |   `-- requirements.txt
+|   |-- generate_suppliers_daily
+|   |   |-- deploy.sh
+|   |   |-- .gcloudignore
+|   |   |-- main.py
+|   |   `-- requirements.txt
+|   `-- shared
+|       |-- config.py
+|       |-- requirements.txt
+|       `-- utils.py
+|-- .github
+|   `-- workflows
+|       |-- deploy.yml
+|       `-- python-tests.yml
+|-- scripts
+|   |-- changelog.sh
+|   `-- version.sh
+|-- terraform
+|   |-- main.tf
+|   |-- outputs.tf
+|   `-- variables.tf
+|-- tests
+|   |-- conftest.py
+|   |-- test_data_generator.py
+|   |-- test_generate_products_daily.py
+|   `-- test_generate_suppliers_daily.py
+|-- .gitignore
+|-- Makefile
+|-- README.md
+|-- README.md.backup
+|-- requirements.txt
+`-- update-readme.sh
+
+14 directories, 37 files
+```
+
+*Arborescence générée automatiquement le 2025-06-11 à 14:36:27*
+<!-- TREE_END -->
