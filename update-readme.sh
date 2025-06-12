@@ -19,19 +19,19 @@ readonly NC='\033[0m'
 
 # Logging
 log_info() {
-    echo -e "${BLUE}[INFO]${NC} $*"
+    >&2 echo -e "${BLUE}[INFO]${NC} $*"
 }
 
 log_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $*"
+    >&2 echo -e "${GREEN}[SUCCESS]${NC} $*"
 }
 
 log_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $*"
+    >&2 echo -e "${YELLOW}[WARNING]${NC} $*"
 }
 
 log_error() {
-    echo -e "${RED}[ERROR]${NC} $*"
+    >&2 echo -e "${RED}[ERROR]${NC} $*"
 }
 
 # Vérifier tree
@@ -52,7 +52,6 @@ generate_tree() {
     excludes+='|dist|build|target|.DS_Store|*.log|.cache|.pytest_cache'
     excludes+='|.coverage|.terraform|README.md.backup|*.tmp'
     
-    # Générer avec emojis, sans couleurs ANSI
     tree -I "$excludes" --dirsfirst -a --charset ascii --noreport | sed -E '
         s/^(\|-- |\`-- )airflow/\1🎯 airflow/
         s/^(\|-- |\`-- )cloud_functions/\1☁️ cloud_functions/
@@ -60,7 +59,7 @@ generate_tree() {
         s/^(\|-- |\`-- )scripts/\1🛠️ scripts/
         s/^(\|-- |\`-- )terraform/\1🏗️ terraform/
         s/^(\|-- |\`-- )tests/\1🧪 tests/
-    ' | sed -r "s/\x1B\[[0-9;]*[mK]//g"  # Supprime séquences ANSI
+    ' | sed -r "s/\x1B\[[0-9;]*[mK]//g"
 }
 
 # Créer sauvegarde
@@ -117,18 +116,16 @@ $tree_content
 EOF
 )
     
-    # Remplacer la section
+    # Remplacer la section entre les marqueurs
     local temp_file
     temp_file=$(mktemp)
     
-    # Utiliser Python pour un remplacement sûr
     python3 << PYTHON_SCRIPT > "$temp_file"
 import re
 
 with open('$README_FILE', 'r') as f:
     content = f.read()
 
-# Remplacer la section entre les marqueurs
 pattern = r'<!-- TREE_START -->.*?<!-- TREE_END -->'
 replacement = '''$new_section'''
 
@@ -183,6 +180,12 @@ show_usage() {
 main() {
     local dry_run=false
     local commit_message="Mise à jour automatique de l'arborescence dans README.md"
+    
+    # Vérifier si la mise à jour est désactivée
+    if [[ "${UPDATE_README:-}" == "false" ]]; then
+        log_info "Mise à jour automatique désactivée par la variable d'environnement UPDATE_README"
+        exit 0
+    fi
     
     # Arguments
     while [[ $# -gt 0 ]]; do

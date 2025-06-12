@@ -36,56 +36,10 @@ graph TD
 
 ---
 
-
-
-## 📁 Structure du Projet
-```bash
-.
-├── airflow
-│   └── dags
-│       └── retail_data_dag.py
-├── cloud_functions
-│   ├── consolidate_masters
-│   │   ├── deploy.sh
-│   │   ├── main.py
-│   │   └── requirements.txt
-│   ├── generate_customers_daily
-│   │   ├── deploy.sh
-│   │   ├── main.py
-│   │   └── requirements.txt
-│   ├── generate_products_daily
-│   │   ├── deploy.sh
-│   │   ├── main.py
-│   │   └── requirements.txt
-│   ├── generate_suppliers_daily
-│   │   ├── deploy.sh
-│   │   ├── main.py
-│   │   └── requirements.txt
-│   └── shared
-│       ├── config.py
-│       ├── requirements.txt
-│       └── utils.py
-├── Makefile
-├── README.md
-├── requirements.txt
-├── scripts
-│   ├── changelog.sh
-│   └── version.sh
-├── terraform
-│   ├── main.tf
-│   ├── outputs.tf
-│   └── variables.tf
-└── tests
-    ├── conftest.py
-    ├── test_data_generator.py
-    ├── test_generate_products_daily.py
-    └── test_generate_suppliers_daily.py
-
 <!-- TREE_START -->
 ## 📁 Structure du projet
 
 ```
-[0;34m[INFO][0m Génération de l'arborescence...
 .
 |-- 🎯 airflow
 |   `-- dags
@@ -138,5 +92,5 @@ graph TD
 `-- update-readme.sh
 ```
 
-*Arborescence générée automatiquement le 2025-06-12 à 11:58:07*
+*Arborescence générée automatiquement le 2025-06-12 à 12:12:33*
 <!-- TREE_END -->
