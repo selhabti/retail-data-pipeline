@@ -136,9 +136,7 @@ graph TD
 |-- README.md
 |-- requirements.txt
 `-- update-readme.sh
-
-14 directories, 36 files
 ```
 
-*Arborescence générée automatiquement le 2025-06-12 à 10:36:41*
+*Arborescence générée automatiquement le 2025-06-12 à 11:55:59*
 <!-- TREE_END -->
