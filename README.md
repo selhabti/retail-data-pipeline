@@ -85,12 +85,12 @@ graph TD
 ## 📁 Structure du projet
 
 ```
-[2025-06-11 14:36:27] [0;34m[INFO][0m Génération de l'arborescence...
+[0;34m[INFO][0m Génération de l'arborescence...
 .
-|-- airflow
+|-- 🎯 airflow
 |   `-- dags
 |       `-- retail_data_dag.py
-|-- cloud_functions
+|-- ☁️ cloud_functions
 |   |-- consolidate_masters
 |   |   |-- deploy.sh
 |   |   |-- .gcloudignore
@@ -115,18 +115,18 @@ graph TD
 |       |-- config.py
 |       |-- requirements.txt
 |       `-- utils.py
-|-- .github
+|-- 🚀 .github
 |   `-- workflows
 |       |-- deploy.yml
 |       `-- python-tests.yml
-|-- scripts
+|-- 🛠️ scripts
 |   |-- changelog.sh
 |   `-- version.sh
-|-- terraform
+|-- 🏗️ terraform
 |   |-- main.tf
 |   |-- outputs.tf
 |   `-- variables.tf
-|-- tests
+|-- 🧪 tests
 |   |-- conftest.py
 |   |-- test_data_generator.py
 |   |-- test_generate_products_daily.py
@@ -134,12 +134,11 @@ graph TD
 |-- .gitignore
 |-- Makefile
 |-- README.md
-|-- README.md.backup
 |-- requirements.txt
 `-- update-readme.sh
 
-14 directories, 37 files
+14 directories, 36 files
 ```
 
-*Arborescence générée automatiquement le 2025-06-11 à 14:36:27*
+*Arborescence générée automatiquement le 2025-06-12 à 10:36:41*
 <!-- TREE_END -->
