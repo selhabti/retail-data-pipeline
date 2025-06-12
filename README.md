@@ -138,5 +138,5 @@ graph TD
 `-- update-readme.sh
 ```
 
-*Arborescence générée automatiquement le 2025-06-12 à 11:55:59*
+*Arborescence générée automatiquement le 2025-06-12 à 11:58:07*
 <!-- TREE_END -->
