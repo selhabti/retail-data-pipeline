@@ -52,15 +52,15 @@ generate_tree() {
     excludes+='|dist|build|target|.DS_Store|*.log|.cache|.pytest_cache'
     excludes+='|.coverage|.terraform|README.md.backup|*.tmp'
     
-    # Générer avec emojis
-    tree -I "$excludes" --dirsfirst -a --charset ascii | sed -E '
+    # Générer avec emojis, sans couleurs ANSI
+    tree -I "$excludes" --dirsfirst -a --charset ascii --noreport | sed -E '
         s/^(\|-- |\`-- )airflow/\1🎯 airflow/
         s/^(\|-- |\`-- )cloud_functions/\1☁️ cloud_functions/
         s/^(\|-- |\`-- )\.github/\1🚀 .github/
         s/^(\|-- |\`-- )scripts/\1🛠️ scripts/
         s/^(\|-- |\`-- )terraform/\1🏗️ terraform/
         s/^(\|-- |\`-- )tests/\1🧪 tests/
-    '
+    ' | sed -r "s/\x1B\[[0-9;]*[mK]//g"  # Supprime séquences ANSI
 }
 
 # Créer sauvegarde
@@ -173,14 +173,16 @@ error_handler() {
 
 # Usage
 show_usage() {
-    echo "Usage: $0 [--dry-run] [--help]"
-    echo "  --dry-run    Prévisualisation sans modification"
-    echo "  --help       Afficher cette aide"
+    echo "Usage: $0 [--dry-run] [--help] [--commit-message <message>]"
+    echo "  --dry-run            Prévisualisation sans modification"
+    echo "  --help               Afficher cette aide"
+    echo "  --commit-message     Message de commit personnalisé"
 }
 
 # Main
 main() {
     local dry_run=false
+    local commit_message="Mise à jour automatique de l'arborescence dans README.md"
     
     # Arguments
     while [[ $# -gt 0 ]]; do
@@ -192,6 +194,16 @@ main() {
             --help)
                 show_usage
                 exit 0
+                ;;
+            --commit-message)
+                if [[ -n "$2" ]]; then
+                    commit_message="$2"
+                    shift 2
+                else
+                    log_error "Option --commit-message requiert un argument"
+                    show_usage
+                    exit 1
+                fi
                 ;;
             *)
                 log_error "Option inconnue: $1"
